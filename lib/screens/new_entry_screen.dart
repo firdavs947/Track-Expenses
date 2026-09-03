@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/gen/assets.gen.dart';
+import 'package:track_expenses/models/expense_model.dart';
 import 'package:track_expenses/providers/new_entry.dart';
 
 class NewEntryScreen extends StatefulWidget {
@@ -14,47 +15,85 @@ class NewEntryScreen extends StatefulWidget {
 }
 
 class _NewEntryScreenState extends State<NewEntryScreen> {
+  final TextEditingController _valuecontroller = TextEditingController();
+  final TextEditingController _notecontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          automaticallyImplyLeading: false,
-          title: Padding(
-            padding: const EdgeInsets.only(left: 5, right: 15),
-            child: FadeInDown(
-              delay: Duration(milliseconds: 00),
-              duration: Duration(milliseconds: 800),
+    return ChangeNotifierProvider(
+      create: (context) => NewEntry(),
+      child: Builder(
+        builder: (context) {
+          return GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                automaticallyImplyLeading: false,
+                title: Padding(
+                  padding: const EdgeInsets.only(left: 5, right: 15),
+                  child: FadeInDown(
+                    delay: Duration(milliseconds: 00),
+                    duration: Duration(milliseconds: 800),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: SvgPicture.asset(Assets.icons.close),
+                        ),
+                        Spacer(),
+                        SizedBox(width: 25),
+                        Text(
+                          'New Entry',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            final newEntry = context.read<NewEntry>();
+                            final isIncome = newEntry.selectedindex2 == 1;
+                            final rawValue =
+                                double.tryParse(_valuecontroller.text) ?? 0;
+                            final signedValue = isIncome ? rawValue : -rawValue;
 
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: SvgPicture.asset(Assets.icons.close),
+                            newEntry.sendincome(
+                              expense: ExpenseModel(
+                                value: signedValue,
+                                income: isIncome,
+                                type: ExpenseCategory
+                                    .values[newEntry.selectedindex],
+                                note: _notecontroller.text,
+                              ),
+                              onError: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error')),
+                                );
+                              },
+                              onSuccess: () {
+                                Navigator.pop(context);
+                              },
+                            );
+                          },
+                          child: Text(
+                            'SAVE',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    'New Entry',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                  ),
-                  Text(
-                    'SAVE',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-        body: ChangeNotifierProvider(
-          create: (context) => NewEntry(),
-          child: Builder(
-            builder: (context) {
-              return SizedBox(
+              body: SizedBox(
                 width: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -64,7 +103,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                       FadeIn(
                         delay: Duration(milliseconds: 200),
                         duration: Duration(milliseconds: 800),
-
                         child: Text(
                           'TOTAL BALANCE',
                           style: TextStyle(
@@ -80,12 +118,11 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                         child: FadeIn(
                           delay: Duration(milliseconds: 400),
                           duration: Duration(milliseconds: 800),
-
                           child: ZoomIn(
                             delay: Duration(milliseconds: 400),
                             duration: Duration(milliseconds: 800),
-
                             child: TextField(
+                              controller: _valuecontroller,
                               keyboardType: TextInputType.number,
                               style: TextStyle(
                                 fontSize: 56,
@@ -99,7 +136,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                   padding: const EdgeInsets.all(15),
                                   child: SvgPicture.asset(Assets.icons.text),
                                 ),
-
                                 hintText: '0.00',
                                 hintStyle: TextStyle(
                                   fontSize: 56,
@@ -124,11 +160,9 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                       FadeIn(
                         delay: Duration(milliseconds: 600),
                         duration: Duration(milliseconds: 800),
-
                         child: ZoomIn(
                           delay: Duration(milliseconds: 600),
                           duration: Duration(milliseconds: 800),
-
                           child: Container(
                             height: 48,
                             width: 256,
@@ -146,7 +180,8 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                     onTap: () {
                                       context.read<NewEntry>().selected2(0);
                                     },
-                                    child: Container(
+                                    child: AnimatedContainer(
+                                      duration: Duration(milliseconds: 200),
                                       height: 40,
                                       width: 124,
                                       decoration: BoxDecoration(
@@ -169,7 +204,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                             fontWeight: FontWeight.w600,
                                             color:
                                                 context
-                                                        .read<NewEntry>()
+                                                        .watch<NewEntry>()
                                                         .selectedindex2 ==
                                                     0
                                                 ? AppColors.white
@@ -183,13 +218,14 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                     onTap: () {
                                       context.read<NewEntry>().selected2(1);
                                     },
-                                    child: Container(
+                                    child: AnimatedContainer(
+                                      duration: Duration(milliseconds: 200),
                                       height: 40,
                                       width: 124,
                                       decoration: BoxDecoration(
                                         color:
                                             context
-                                                    .read<NewEntry>()
+                                                    .watch<NewEntry>()
                                                     .selectedindex2 ==
                                                 1
                                             ? AppColors.black
@@ -206,7 +242,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                             fontWeight: FontWeight.w600,
                                             color:
                                                 context
-                                                        .read<NewEntry>()
+                                                        .watch<NewEntry>()
                                                         .selectedindex2 ==
                                                     1
                                                 ? AppColors.white
@@ -228,7 +264,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                           FadeIn(
                             delay: Duration(milliseconds: 600),
                             duration: Duration(milliseconds: 800),
-
                             child: Text(
                               'CATEGORY',
                               style: TextStyle(
@@ -243,7 +278,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                       FadeIn(
                         delay: Duration(milliseconds: 600),
                         duration: Duration(milliseconds: 800),
-
                         child: Divider(color: AppColors.lgrey),
                       ),
                       SizedBox(height: 16),
@@ -265,7 +299,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                 ? Duration(milliseconds: 1200)
                                 : Duration(milliseconds: 1300),
                             duration: Duration(milliseconds: 800),
-
                             child: ZoomInDown(
                               delay: i == 0
                                   ? Duration(milliseconds: 800)
@@ -279,7 +312,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                   ? Duration(milliseconds: 1200)
                                   : Duration(milliseconds: 1300),
                               duration: Duration(milliseconds: 800),
-
                               child: Column(
                                 spacing: 8,
                                 children: [
@@ -290,7 +322,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                     child: CircleAvatar(
                                       backgroundColor:
                                           context
-                                                  .read<NewEntry>()
+                                                  .watch<NewEntry>()
                                                   .selectedindex ==
                                               i
                                           ? AppColors.black
@@ -310,7 +342,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                       ),
                                     ),
                                   ),
-
                                   Text(
                                     context.watch<NewEntry>().categorytext[i],
                                     style: TextStyle(
@@ -333,13 +364,13 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                       ),
                       SizedBox(height: 52),
                       FadeIn(
-  delay: Duration(milliseconds: 1300),
+                        delay: Duration(milliseconds: 1300),
                         duration: Duration(milliseconds: 800),
-                      
                         child: ZoomInDown(
                           delay: Duration(milliseconds: 1500),
                           duration: Duration(milliseconds: 800),
                           child: TextField(
+                            controller: _notecontroller,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -362,17 +393,17 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                         ),
                       ),
                       FadeIn(
-                          delay: Duration(milliseconds: 1500),
+                        delay: Duration(milliseconds: 1500),
                         duration: Duration(milliseconds: 800),
-                      
-                        child: Divider(color: AppColors.lgrey)),
+                        child: Divider(color: AppColors.lgrey),
+                      ),
                     ],
                   ),
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
-import 'package:track_expenses/screens/home_screen.dart';
 import 'package:track_expenses/providers/onboarding_provider.dart';
 import 'package:track_expenses/screens/main_screen.dart';
 

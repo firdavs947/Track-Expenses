@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:track_expenses/consts/themes/app_themes.dart';
-import 'package:track_expenses/screens/home_screen.dart';
 import 'package:track_expenses/screens/main_screen.dart';
 import 'package:track_expenses/screens/splash_screen.dart';
+import 'package:track_expenses/widgets/database_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseService.init('expenses');
   runApp(const MainApp());
 }
 
@@ -13,11 +15,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-     debugShowCheckedModeBanner: false,
-     title: 'Track expenses',
-     theme: AppTheme.lightTheme,
-     home: SplashScreen(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Track expenses',
+      theme: AppTheme.lightTheme,
+      home: SplashScreen(),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/gen/assets.gen.dart';
 import 'package:track_expenses/providers/home_provider.dart';
 import 'package:track_expenses/screens/new_entry_screen.dart';
+import 'package:track_expenses/widgets/custom_transactions.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,8 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: SingleChildScrollView(
         child: ChangeNotifierProvider(
-          create: (_) => HomeProvider(),
-        
+          create: (_) => HomeProvider()..getExpensesFromDb(),
+
           child: Builder(
             builder: (context) {
               return SizedBox(
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       FadeIn(
                         delay: Duration(milliseconds: 200),
                         duration: Duration(milliseconds: 800),
-        
+
                         child: Text(
                           'TOTAL BALANCE',
                           style: TextStyle(
@@ -91,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           FadeIn(
                             delay: Duration(milliseconds: 600),
                             duration: Duration(milliseconds: 800),
-        
+
                             child: ZoomIn(
                               delay: Duration(milliseconds: 600),
                               duration: Duration(milliseconds: 800),
@@ -122,11 +123,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           FadeIn(
                             delay: Duration(milliseconds: 600),
                             duration: Duration(milliseconds: 800),
-        
+
                             child: ZoomIn(
                               delay: Duration(milliseconds: 600),
                               duration: Duration(milliseconds: 800),
-        
+
                               child: Container(
                                 // height: 35,
                                 // width: 123,
@@ -153,26 +154,28 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-        
+
                       SizedBox(height: 20),
                       FadeIn(
                         delay: Duration(milliseconds: 800),
                         duration: Duration(milliseconds: 800),
-        
+
                         child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            await Navigator.push(
                               context,
                               CupertinoPageRoute(
                                 builder: (context) => NewEntryScreen(),
                               ),
                             );
+                            if (!context.mounted) return;
+                            context.read<HomeProvider>().getExpensesFromDb();
                           },
                           icon: Icon(Icons.add),
                         ),
                       ),
                       SizedBox(height: 20),
-        
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 25),
                         child: Row(
@@ -181,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             FadeInLeft(
                               delay: Duration(milliseconds: 1000),
                               duration: Duration(milliseconds: 800),
-        
+
                               child: Row(
                                 children: [
                                   Container(
@@ -191,7 +194,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   SizedBox(width: 16),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -214,7 +218,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       TweenAnimationBuilder(
                                         tween: Tween<double>(
                                           begin: 0.0,
-                                          end: 4.200,
+                                          end: context
+                                              .watch<HomeProvider>()
+                                              .totalIncome,
                                         ),
                                         duration: const Duration(
                                           milliseconds: 3000,
@@ -226,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               double value,
                                               Widget? child,
                                             ) => Text(
-                                              '+\$${value.toStringAsFixed(3)}',
+                                              '+\$${value.toStringAsFixed(1)}',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
@@ -242,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             FadeInRight(
                               delay: Duration(milliseconds: 1000),
                               duration: Duration(milliseconds: 800),
-        
+
                               child: Row(
                                 children: [
                                   Container(
@@ -252,7 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   SizedBox(width: 16),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -275,7 +282,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       TweenAnimationBuilder(
                                         tween: Tween<double>(
                                           begin: 0.0,
-                                          end: 1.840,
+                                          end: context
+                                              .watch<HomeProvider>()
+                                              .totalOutcome,
                                         ),
                                         duration: const Duration(
                                           milliseconds: 3000,
@@ -287,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               double value,
                                               Widget? child,
                                             ) => Text(
-                                              '-\$${value.toStringAsFixed(3)}',
+                                              '-\$${value.toStringAsFixed(1)}',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
@@ -307,11 +316,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       FadeIn(
                         delay: Duration(milliseconds: 1100),
                         duration: Duration(milliseconds: 800),
-        
+
                         child: ZoomInDown(
                           delay: Duration(milliseconds: 1100),
                           duration: Duration(milliseconds: 800),
-        
+
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -338,295 +347,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(height: 24),
-                      FadeIn(
-                        delay: Duration(milliseconds: 1200),
-                        duration: Duration(milliseconds: 800),
-        
-                        child: ZoomInDown(
-                          delay: Duration(milliseconds: 1200),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: SizedBox(
-                            height: 76,
-                            width: double.infinity,
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: AppColors.white,
-                                  child: SvgPicture.asset(
-                                    Assets.icons.foodsMarket,
-                                  ),
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-        
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Whole Foods Market',
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Groceries • Today',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                TweenAnimationBuilder(
-                                  tween: Tween<double>(begin: 0.0, end: 142.30),
-                                  duration: const Duration(milliseconds: 4000),
-                                  curve: Curves.easeOutQuint,
-                                  builder:
-                                      (context, double value, Widget? child) =>
-                                          Text(
-                                            '-\$${value.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'Jet',
-                                            ),
-                                          ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25),
-                        child: FadeIn(
-                          delay: Duration(milliseconds: 1100),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: ZoomInDown(
-                            delay: Duration(milliseconds: 1100),
-                            duration: Duration(milliseconds: 800),
-        
-                            child: Divider(color: AppColors.lgrey),
-                          ),
-                        ),
-                      ),
-                      FadeIn(
-                        delay: Duration(milliseconds: 1250),
-                        duration: Duration(milliseconds: 800),
-        
-                        child: ZoomInDown(
-                          delay: Duration(milliseconds: 1250),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: SizedBox(
-                            height: 76,
-                            width: double.infinity,
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: AppColors.white,
-                                  child: SvgPicture.asset(Assets.icons.corp),
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-        
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Acme Corp Salary',
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Income • Yesterday',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                TweenAnimationBuilder(
-                                  tween: Tween<double>(begin: 0.0, end: 3.500),
-                                  duration: const Duration(milliseconds: 4150),
-                                  curve: Curves.easeOutQuint,
-                                  builder:
-                                      (context, double value, Widget? child) =>
-                                          Text(
-                                            '+\$${value.toStringAsFixed(3)}',
-                                            style: TextStyle(
-                                              color: AppColors.green,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'Jet',
-                                            ),
-                                          ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25),
-                        child: FadeIn(
-                          delay: Duration(milliseconds: 1250),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: ZoomInDown(
-                            delay: Duration(milliseconds: 1250),
-                            duration: Duration(milliseconds: 800),
-        
-                            child: Divider(color: AppColors.lgrey),
-                          ),
-                        ),
-                      ),
-                      FadeIn(
-                        delay: Duration(milliseconds: 1400),
-                        duration: Duration(milliseconds: 800),
-        
-                        child: ZoomInDown(
-                          delay: Duration(milliseconds: 1400),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: SizedBox(
-                            height: 76,
-                            width: double.infinity,
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: AppColors.white,
-                                  child: SvgPicture.asset(Assets.icons.biils),
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Electric Utility',
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Bills • Jun 12',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                TweenAnimationBuilder(
-                                  tween: Tween<double>(begin: 0.0, end: 85),
-                                  duration: const Duration(milliseconds: 4300),
-                                  curve: Curves.easeOutQuint,
-                                  builder:
-                                      (context, double value, Widget? child) =>
-                                          Text(
-                                            '-\$${value.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'Jet',
-                                            ),
-                                          ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25),
-                        child: FadeIn(
-                          delay: Duration(milliseconds: 1400),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: ZoomInDown(
-                            delay: Duration(milliseconds: 1400),
-                            duration: Duration(milliseconds: 800),
-        
-                            child: Divider(color: AppColors.lgrey),
-                          ),
-                        ),
-                      ),
-                      FadeIn(
-                        delay: Duration(milliseconds: 1550),
-                        duration: Duration(milliseconds: 800),
-        
-                        child: ZoomInDown(
-                          delay: Duration(milliseconds: 1550),
-                          duration: Duration(milliseconds: 800),
-        
-                          child: SizedBox(
-                            height: 76,
-                            width: double.infinity,
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: AppColors.white,
-                                  child: SvgPicture.asset(Assets.icons.dining),
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Artisan Roasters',
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Dining • Jun 11',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                TweenAnimationBuilder(
-                                  tween: Tween<double>(begin: 0.0, end: 6.50),
-                                  duration: const Duration(milliseconds: 4450),
-                                  curve: Curves.easeOutQuint,
-                                  builder:
-                                      (context, double value, Widget? child) =>
-                                          Text(
-                                            '-\$${value.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'Jet',
-                                            ),
-                                          ),
-                                ),
-                              ],
-                            ),
-                          ),
+
+                      ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        itemCount: context
+                            .watch<HomeProvider>()
+                            .expenses
+                            .length,
+                        itemBuilder: (context, index) => CustomTransactions(
+                          expenseModel: context
+                              .watch<HomeProvider>()
+                              .expenses[index],
                         ),
                       ),
                     ],
