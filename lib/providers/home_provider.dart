@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:track_expenses/models/expense_model.dart';
-import 'package:track_expenses/widgets/database_service.dart';
+import 'package:track_expenses/service/database_service.dart';
 
 class HomeProvider extends ChangeNotifier {
   // double balance = Random().nextInt(99001) + 1000; // от 1000 до 100000
@@ -30,15 +30,25 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> clearDb({required Function onSuccess}) async {
+    await DatabaseService.clearDb();
+    balance = 0;
+    totalIncome = 0;
+    totalOutcome = 0;
+    onSuccess();
+    expenses.clear();
+    notifyListeners();
+  }
+
   void _calculateTotals() {
     double income = 0;
     double outcome = 0;
 
     for (var e in expenses) {
       if (e.income) {
-        income += e.value; // хранится положительным
+        income += e.value;
       } else {
-        outcome += e.value.abs(); // на случай если value отрицательный
+        outcome += e.value.abs();
       }
     }
 
@@ -47,5 +57,10 @@ class HomeProvider extends ChangeNotifier {
     balance = income - outcome;
 
     notifyListeners();
+  }
+
+  Future<void> deleteItem(int id) async {
+    await DatabaseService.deleteItemInDb(id);
+    getExpensesFromDb();
   }
 }

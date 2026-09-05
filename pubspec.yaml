@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   flutter_gen: ^5.15.0
   flutter_svg: ^2.3.0
+  lottie: ^3.3.3
   path: ^1.9.1
   provider: ^6.1.5+1
   sqflite: ^2.4.2+1
@@ -31,6 +32,8 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+    - assets/lotties/
+
   fonts:
     - family: Inter
       fonts:

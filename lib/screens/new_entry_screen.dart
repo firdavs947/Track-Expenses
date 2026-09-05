@@ -6,6 +6,9 @@ import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/gen/assets.gen.dart';
 import 'package:track_expenses/models/expense_model.dart';
 import 'package:track_expenses/providers/new_entry.dart';
+import 'package:track_expenses/widgets/category.dart';
+import 'package:track_expenses/widgets/expense_income.dart';
+import 'package:track_expenses/widgets/new_entry_text_field.dart';
 
 class NewEntryScreen extends StatefulWidget {
   const NewEntryScreen({super.key});
@@ -15,8 +18,8 @@ class NewEntryScreen extends StatefulWidget {
 }
 
 class _NewEntryScreenState extends State<NewEntryScreen> {
-  final TextEditingController _valuecontroller = TextEditingController();
   final TextEditingController _notecontroller = TextEditingController();
+  final TextEditingController _valuecontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
           return GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: Scaffold(
-              resizeToAvoidBottomInset: false,
+              resizeToAvoidBottomInset: true,
               appBar: AppBar(
                 backgroundColor: Colors.white,
                 automaticallyImplyLeading: false,
@@ -64,6 +67,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
 
                             newEntry.sendincome(
                               expense: ExpenseModel(
+                                id: 0,
                                 value: signedValue,
                                 income: isIncome,
                                 type: ExpenseCategory
@@ -121,38 +125,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                           child: ZoomIn(
                             delay: Duration(milliseconds: 400),
                             duration: Duration(milliseconds: 800),
-                            child: TextField(
-                              controller: _valuecontroller,
-                              keyboardType: TextInputType.number,
-                              style: TextStyle(
-                                fontSize: 56,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Jet',
-                              ),
-                              cursorColor: AppColors.black,
-                              cursorHeight: 65,
-                              decoration: InputDecoration(
-                                prefixIcon: Padding(
-                                  padding: const EdgeInsets.all(15),
-                                  child: SvgPicture.asset(Assets.icons.text),
-                                ),
-                                hintText: '0.00',
-                                hintStyle: TextStyle(
-                                  fontSize: 56,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Jet',
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                ),
-                                border: UnderlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                ),
-                                disabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                            ),
+                            child: NewEntryTextField(controller: _valuecontroller,)
                           ),
                         ),
                       ),
@@ -163,99 +136,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                         child: ZoomIn(
                           delay: Duration(milliseconds: 600),
                           duration: Duration(milliseconds: 800),
-                          child: Container(
-                            height: 48,
-                            width: 256,
-                            decoration: BoxDecoration(
-                              color: AppColors.lgrey,
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.read<NewEntry>().selected2(0);
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 200),
-                                      height: 40,
-                                      width: 124,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            context
-                                                    .watch<NewEntry>()
-                                                    .selectedindex2 ==
-                                                0
-                                            ? AppColors.black
-                                            : AppColors.lgrey,
-                                        borderRadius: BorderRadius.circular(
-                                          100,
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'EXPENSE',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                context
-                                                        .watch<NewEntry>()
-                                                        .selectedindex2 ==
-                                                    0
-                                                ? AppColors.white
-                                                : AppColors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.read<NewEntry>().selected2(1);
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 200),
-                                      height: 40,
-                                      width: 124,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            context
-                                                    .watch<NewEntry>()
-                                                    .selectedindex2 ==
-                                                1
-                                            ? AppColors.black
-                                            : AppColors.lgrey,
-                                        borderRadius: BorderRadius.circular(
-                                          100,
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'INCOME',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                context
-                                                        .watch<NewEntry>()
-                                                        .selectedindex2 ==
-                                                    1
-                                                ? AppColors.white
-                                                : AppColors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          child: ExpenseIncome()
                         ),
                       ),
                       SizedBox(height: 48),
@@ -281,87 +162,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                         child: Divider(color: AppColors.lgrey),
                       ),
                       SizedBox(height: 16),
-                      Wrap(
-                        runSpacing: 16,
-                        spacing: 16,
-                        children: List.generate(
-                          context.watch<NewEntry>().category.length,
-                          (i) => FadeIn(
-                            delay: i == 0
-                                ? Duration(milliseconds: 800)
-                                : i == 1
-                                ? Duration(milliseconds: 900)
-                                : i == 2
-                                ? Duration(milliseconds: 1000)
-                                : i == 3
-                                ? Duration(milliseconds: 1100)
-                                : i == 4
-                                ? Duration(milliseconds: 1200)
-                                : Duration(milliseconds: 1300),
-                            duration: Duration(milliseconds: 800),
-                            child: ZoomInDown(
-                              delay: i == 0
-                                  ? Duration(milliseconds: 800)
-                                  : i == 1
-                                  ? Duration(milliseconds: 900)
-                                  : i == 2
-                                  ? Duration(milliseconds: 1000)
-                                  : i == 3
-                                  ? Duration(milliseconds: 1100)
-                                  : i == 4
-                                  ? Duration(milliseconds: 1200)
-                                  : Duration(milliseconds: 1300),
-                              duration: Duration(milliseconds: 800),
-                              child: Column(
-                                spacing: 8,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.read<NewEntry>().selected(i);
-                                    },
-                                    child: CircleAvatar(
-                                      backgroundColor:
-                                          context
-                                                  .watch<NewEntry>()
-                                                  .selectedindex ==
-                                              i
-                                          ? AppColors.black
-                                          : AppColors.lgrey,
-                                      radius: 30,
-                                      child: SvgPicture.asset(
-                                        context.watch<NewEntry>().category[i],
-                                        colorFilter: ColorFilter.mode(
-                                          context
-                                                      .watch<NewEntry>()
-                                                      .selectedindex ==
-                                                  i
-                                              ? AppColors.white
-                                              : AppColors.grey,
-                                          BlendMode.srcIn,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    context.watch<NewEntry>().categorytext[i],
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color:
-                                          context
-                                                  .watch<NewEntry>()
-                                                  .selectedindex ==
-                                              i
-                                          ? AppColors.black
-                                          : AppColors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      Category(),
                       SizedBox(height: 52),
                       FadeIn(
                         delay: Duration(milliseconds: 1300),

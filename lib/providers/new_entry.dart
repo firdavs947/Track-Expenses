@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:track_expenses/gen/assets.gen.dart';
 import 'package:track_expenses/models/expense_model.dart';
-import 'package:track_expenses/widgets/database_service.dart';
+import 'package:track_expenses/service/database_service.dart';
 
 class NewEntry extends ChangeNotifier {
   List category = [
@@ -47,6 +47,7 @@ class NewEntry extends ChangeNotifier {
     try {
       await DatabaseService.addExpenseToDb(
         ExpenseModel(
+          id: 0,
           value: expense.value,
           income: expense.income,
           type: expense.type,

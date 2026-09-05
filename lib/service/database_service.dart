@@ -12,8 +12,8 @@ class DatabaseService {
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, filePath);
 
-   db =   await openDatabase(path, version: 1, onCreate: _createDB);
-    } catch (e, stack) {
+      db = await openDatabase(path, version: 1, onCreate: _createDB);
+    } catch (e) {
       print(e);
     }
   }
@@ -33,7 +33,7 @@ class DatabaseService {
 
   static Future<void> closeDB() async => await db.close();
 
- static Future<void> addExpenseToDb(ExpenseModel expense) async {
+  static Future<void> addExpenseToDb(ExpenseModel expense) async {
     Map<String, dynamic> row = {
       'note': expense.note,
       'value': expense.value,
@@ -45,24 +45,35 @@ class DatabaseService {
   }
 
   static Future<List<ExpenseModel>> getAllExpenses() async {
-  // 1. Fetch all rows from the expenses table
-  final List<Map<String, dynamic>> expense = await db.query('expenses');
+    final List<Map<String, dynamic>> expense = await db.query(
+      dataBaseName.replaceAll('.db', ''),
+    );
 
-  // 2. Convert the List<Map> into a List<ExpenseModel>
-  return List.generate(expense.length, (index) {
-    final row = expense[index];
+    return List.generate(expense.length, (index) {
+      final row = expense[index];
 
-    return ExpenseModel(
-      note: row['note'] as String? ?? "Empty",
-      value: row['value'] as double,
-      income: (row['income'] as int) == 1,
-      type: ExpenseCategory.values.firstWhere(
-        (e) => e.toString() == row['type'] || e.name == row['type'],
-        orElse: () => ExpenseCategory.home, // Default fallback
-      ),
-    ); // ExpenseModel
-  }); // List.generate
-}
+      return ExpenseModel(
+        id: row['id'],
+        note: row['note'] as String? ?? "Empty",
+        value: row['value'] as double,
+        income: (row['income'] as int) == 1,
+        type: ExpenseCategory.values.firstWhere(
+          (e) => e.toString() == row['type'] || e.name == row['type'],
+          orElse: () => ExpenseCategory.home, // Default fallback
+        ),
+      ); // ExpenseModel
+    }); // List.generate
+  }
 
+  static Future<void> clearDb() async {
+    await db.delete('expenses');
+  }
 
+  static Future<void> deleteItemInDb(int id) async {
+    try {
+      await db.delete('expenses', where: "id =?", whereArgs: [id]);
+    } catch (e) {
+      print(e);
+    }
+  }
 }

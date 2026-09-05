@@ -27,6 +27,9 @@ class $AssetsFontsGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/Container.svg
+  String get container => 'assets/icons/Container.svg';
+
   /// File path: assets/icons/Text.svg
   String get text => 'assets/icons/Text.svg';
 
@@ -86,6 +89,7 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<String> get values => [
+    container,
     text,
     biils,
     check,
@@ -118,10 +122,21 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [logo];
 }
 
+class $AssetsLottiesGen {
+  const $AssetsLottiesGen();
+
+  /// File path: assets/lotties/empty.json
+  String get empty => 'assets/lotties/empty.json';
+
+  /// List of all assets
+  List<String> get values => [empty];
+}
+
 abstract final class Assets {
   static const $AssetsFontsGen fonts = $AssetsFontsGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
+  static const $AssetsLottiesGen lotties = $AssetsLottiesGen();
 }
 
 class AssetGenImage {
