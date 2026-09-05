@@ -44,13 +44,14 @@ class HomeProvider extends ChangeNotifier {
     double income = 0;
     double outcome = 0;
 
-    for (var e in expenses) {
-      if (e.income) {
-        income += e.value;
-      } else {
-        outcome += e.value.abs();
-      }
-    }
+  for (var i = 0; i < expenses.length; i++) {
+  final e = expenses[i];
+  if (e.income) {
+    income += e.value;
+  } else {
+    outcome += e.value.abs();
+  }
+}
 
     totalIncome = income;
     totalOutcome = outcome;
