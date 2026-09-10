@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expenses/consts/themes/app_themes.dart';
 import 'package:track_expenses/providers/home_provider.dart';
+import 'package:track_expenses/screens/home_screen.dart';
 import 'package:track_expenses/screens/main_screen.dart';
 import 'package:track_expenses/service/database_service.dart';
 
@@ -30,7 +31,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Track expenses',
       theme: AppTheme.lightTheme,
-      home: MainScreen(),
+      home: HomeScreen(),
     );
   }
 }

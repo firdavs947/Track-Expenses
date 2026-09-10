@@ -23,6 +23,7 @@ class DatabaseService {
     CREATE TABLE expenses (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       note TEXT,
+      image TEXT,
       value REAL,
       createdAt TEXT,
       type TEXT,
@@ -35,6 +36,7 @@ class DatabaseService {
 
   static Future<void> addExpenseToDb(ExpenseModel expense) async {
     Map<String, dynamic> row = {
+      'image': expense.image,
       'note': expense.note,
       'value': expense.value,
       'income': expense.income ? 1 : 0,
@@ -53,6 +55,7 @@ class DatabaseService {
       final row = expense[index];
 
       return ExpenseModel(
+        image: row['image'] as String?,
         id: row['id'],
         note: row['note'] as String? ?? "Empty",
         value: row['value'] as double,

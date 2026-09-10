@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/providers/home_provider.dart';
 import 'package:track_expenses/widgets/custom_transactions.dart';
 
@@ -60,7 +61,13 @@ class _ListViewBuilderState extends State<ListViewBuilder> {
                   ? Duration(milliseconds: 800)
                   : Duration(milliseconds: 400),
               duration: Duration(milliseconds: 800),
-              child: CustomTransactions(expenseModel: expense),
+              child: Column(
+                children: [
+                  CustomTransactions(expenseModel: expense),
+              Divider(color: AppColors.lgrey,),
+               SizedBox(height: 20,)
+                ],
+              ),
             ),
           ),
         );

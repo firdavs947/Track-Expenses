@@ -9,6 +9,7 @@ import 'package:track_expenses/screens/check_screen.dart';
 import 'package:track_expenses/screens/home_screen.dart';
 import 'package:track_expenses/screens/settings_screen.dart';
 import 'package:track_expenses/screens/wallet_screen.dart';
+import 'package:track_expenses/service/permission_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -20,6 +21,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int selectedINdex = 0;
 List pages =[HomeScreen(), WalletScreen(), CheckScreen(), SettingsScreen()];
+
+
 
   @override
   Widget build(BuildContext context) {

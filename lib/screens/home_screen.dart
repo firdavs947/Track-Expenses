@@ -8,6 +8,7 @@ import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/gen/assets.gen.dart';
 import 'package:track_expenses/providers/home_provider.dart';
 import 'package:track_expenses/screens/new_entry_screen.dart';
+import 'package:track_expenses/service/permission_service.dart';
 import 'package:track_expenses/widgets/List_view_builder.dart';
 import 'package:track_expenses/widgets/addFunds.dart';
 import 'package:track_expenses/widgets/custom_drawer.dart';
@@ -23,6 +24,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  Future<void> _requestPermissions() async {
+    await PermissionService.requestCameraPermission();
+    await PermissionService.requestGalleryPermission();
+  }
+
+  @override
+  void initState() {
+    _requestPermissions();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,9 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 24),
-                   
-                        Addfunds(),
-                     
+
+                    Addfunds(),
+
                     SizedBox(height: 20),
                     FadeIn(
                       delay: Duration(milliseconds: 800),
@@ -103,21 +115,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () async {
                           await Navigator.push(
                             context,
-                            CupertinoPageRoute(
-                              builder: (context) => NewEntryScreen(),
+                            PageRouteBuilder(
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child,),
+                              pageBuilder: (context, animation, secondaryAnimation) =>NewEntryScreen() ,
+                              transitionDuration: Duration(milliseconds: 600),
+                            reverseTransitionDuration: Duration(milliseconds: 600),
                             ),
                           );
                           if (!context.mounted) return;
                           context.read<HomeProvider>().getExpensesFromDb();
                         },
-                        icon: Icon(Icons.add),
+                        icon: Hero(
+                          tag: 'plus1',
+                          child: Icon(Icons.add)),
                       ),
                     ),
                     SizedBox(height: 20),
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: IncomeOutcome()
+                      child: IncomeOutcome(),
                     ),
                     SizedBox(height: 48),
                     FadeIn(
@@ -128,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         delay: Duration(milliseconds: 1100),
                         duration: Duration(milliseconds: 800),
 
-                        child:RecentTransactions()
+                        child: RecentTransactions(),
                       ),
                     ),
                     SizedBox(height: 24),
@@ -149,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           )
-                        : ListViewBuilder()
+                        : ListViewBuilder(),
                   ],
                 ),
               ),
