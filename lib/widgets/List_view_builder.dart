@@ -1,5 +1,4 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
@@ -39,36 +38,12 @@ class _ListViewBuilderState extends State<ListViewBuilder> {
           onDismissed: (direction) async {
             context.read<HomeProvider>().deleteItem(expense.id);
           },
-          child: FadeIn(
-            delay: index == 0
-                ? Duration(milliseconds: 200)
-                : index == 1
-                ? Duration(milliseconds: 400)
-                : index == 2
-                ? Duration(milliseconds: 600)
-                : index == 3
-                ? Duration(milliseconds: 800)
-                : Duration(milliseconds: 400),
-            duration: Duration(milliseconds: 800),
-            child: ZoomInDown(
-              delay: index == 0
-                  ? Duration(milliseconds: 200)
-                  : index == 1
-                  ? Duration(milliseconds: 400)
-                  : index == 2
-                  ? Duration(milliseconds: 600)
-                  : index == 3
-                  ? Duration(milliseconds: 800)
-                  : Duration(milliseconds: 400),
-              duration: Duration(milliseconds: 800),
-              child: Column(
-                children: [
-                  CustomTransactions(expenseModel: expense),
-              Divider(color: AppColors.lgrey,),
-               SizedBox(height: 20,)
-                ],
-              ),
-            ),
+          child: Column(
+            children: [
+              CustomTransactions(expenseModel: expense),
+          Divider(color: AppColors.lgrey,),
+           SizedBox(height: 20,)
+            ],
           ),
         );
       },

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
@@ -163,7 +162,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                 showDialog(
                                   context: context,
                                   builder: (_) => AlertDialog(
-                                    title: Text('Insert Image from:'),
+                                    title: Text('Insert file from:'),
                                     content: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -215,7 +214,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    'Insert Image',
+                                    'Insert File',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -234,7 +233,9 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                             final isImage = context
                                 .watch<NewEntry>()
                                 .isPhotoImage;
-
+                            final isMusic = context
+                                .watch<NewEntry>()
+                                .isPhotoMusic;
                             if (photo == null) {
                               return SizedBox();
                             }
@@ -266,6 +267,22 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                   ),
                                 ),
                               );
+                            } else if (isMusic) {
+                              return InkWell(
+                                onTap: () {
+                                  OpenFile.open(photo.path);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Card(
+                                    child: ListTile(
+                                      leading: const Icon(Icons.music_note),
+                                      title: Text(path.basename(photo.path)),
+                                      subtitle: const Text('Audio file'),
+                                    ),
+                                  ),
+                                ),
+                              );
                             } else {
                               return InkWell(
                                 onTap: () {
@@ -275,9 +292,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                   padding: const EdgeInsets.all(8.0),
                                   child: Card(
                                     child: ListTile(
-                                      leading:  Icon(
-                                        Icons.insert_drive_file,
-                                      ),
+                                      leading: Icon(Icons.insert_drive_file),
                                       title: Text(path.basename(photo.path)),
                                     ),
                                   ),

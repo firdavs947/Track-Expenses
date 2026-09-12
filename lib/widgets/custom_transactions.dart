@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
+import 'package:share_plus/share_plus.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/models/expense_model.dart';
 import 'package:track_expenses/screens/full_sccreen_image.dart';
@@ -18,7 +21,66 @@ class CustomTransactions extends StatefulWidget {
   State<CustomTransactions> createState() => _CustomTransactionsState();
 }
 
-class _CustomTransactionsState extends State<CustomTransactions> {
+class _CustomTransactionsState extends State<CustomTransactions>
+    with TickerProviderStateMixin {
+  double hozirgivaqt = 0;
+  double umumiyvaqt = 0;
+  late final AnimationController _animationController;
+  late final AudioPlayer _audioPlayer;
+  Future<void> initAudio() async {
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.setReleaseMode(ReleaseMode.stop);
+
+    _audioPlayer.onDurationChanged.listen((value) {
+      if (mounted) {
+        setState(() {
+          umumiyvaqt = value.inSeconds.toDouble();
+        });
+      }
+    });
+
+    _audioPlayer.onPositionChanged.listen((value) {
+      if (mounted) {
+        setState(() {
+          if (_audioPlayer.state == PlayerState.completed) {
+            _animationController.reverse();
+          }
+          hozirgivaqt = value.inSeconds.toDouble();
+        });
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _audioPlayer.setSource(
+        DeviceFileSource(widget.expenseModel.image!),
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    if (widget.expenseModel.image != null &&
+        path.basename(widget.expenseModel.image!).endsWith('mp3')) {
+      initAudio();
+    }
+    super.initState();
+  }
+
+  @override
+  
+  void dispose() {
+    _animationController.dispose();
+    if (widget.expenseModel.image != null &&
+        path.basename(widget.expenseModel.image!).endsWith('mp3')) {
+      _audioPlayer.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isIncome = widget.expenseModel.income;
@@ -26,19 +88,15 @@ class _CustomTransactionsState extends State<CustomTransactions> {
 
     return Column(
       children: [
-        FadeIn(
-          // delay: Duration(milliseconds: 200),
-          // duration: Duration(milliseconds: 800),
-          child: ZoomInDown(
-            // delay: Duration(milliseconds: 200),
-            // duration: Duration(milliseconds: 800),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              height: 297,
-              width: double.infinity,
-              child: Column(
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          // height: 297,
+          width: double.infinity,
+          child: Column(
+            children: [
+              Column(
                 children: [
                   Row(
                     children: [
@@ -80,51 +138,66 @@ class _CustomTransactionsState extends State<CustomTransactions> {
                         tween: Tween<double>(begin: 0.0, end: absValue),
                         duration: const Duration(milliseconds: 4000),
                         curve: Curves.easeOutQuint,
-                        builder: (context, double value, Widget? child) => Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Text(
-                            '${isIncome ? '+' : '-'}\$${value.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Jet',
-                              color: isIncome
-                                  ? AppColors.green
-                                  : AppColors.black,
+                        builder: (context, double value, Widget? child) =>
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Text(
+                                '${isIncome ? '+' : '-'}\$${value.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Jet',
+                                  color: isIncome
+                                      ? AppColors.green
+                                      : AppColors.black,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  SizedBox(height: 20),
-                  Builder(
-                    builder: (context) {
-                      final imagePath = widget.expenseModel.image;
-
-                      if (imagePath == null || imagePath.isEmpty) {
-                        return const SizedBox();
-                      }
-
-                      final file = File(imagePath);
-                      final ext = path.extension(imagePath).toLowerCase();
-                      final isImage = [
-                        '.png',
-                        '.jpg',
-                        '.jpeg',
-                        '.gif',
-                        '.bmp',
-                        '.webp',
-                        '.heic',
-                      ].contains(ext);
-
-                      if (isImage) {
-                        return SizedBox(
-                          height: 200,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: InkWell(
+                ],
+              ),
+              SizedBox(height: 20),
+              // SizedBox(height: 20),
+              Builder(
+                builder: (context) {
+                  final imagePath = widget.expenseModel.image;
+        
+                  if (imagePath == null || imagePath.isEmpty) {
+                    return const SizedBox();
+                  }
+        
+                  final file = File(imagePath);
+                  final ext = path.extension(imagePath).toLowerCase();
+                  final isImage = [
+                    '.png',
+                    '.jpg',
+                    '.jpeg',
+                    '.gif',
+                    '.bmp',
+                    '.webp',
+                    '.heic',
+                  ].contains(ext);
+        
+                  final isMusic = [
+                    '.mp3',
+                    '.wav',
+                    '.aac',
+                    '.m4a',
+                    '.ogg',
+                    '.flac',
+                    '.wma',
+                  ].contains(ext);
+        
+                  if (isImage) {
+                    return SizedBox(
+                      // height: 200,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Column(
+                          children: [
+                            InkWell(
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -136,35 +209,111 @@ class _CustomTransactionsState extends State<CustomTransactions> {
                               },
                               child: Hero(
                                 tag: 'rasm1',
-                                child: Image.file(
-                                  file,
-                                  height: 200,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadiusGeometry.circular(20),
+                                  child: Image.file(
+                                    file,
+                                    // height: 200,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      } else {
-                        return InkWell(
-                          onTap: () => OpenFile.open(file.path),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-                              child: ListTile(
-                                leading: const Icon(Icons.insert_drive_file),
-                                title: Text(path.basename(file.path)),
+                              IconButton(
+                              onPressed: () async {
+                                SharePlus.instance.share(
+                                  ShareParams(
+                                    files: [
+                                      XFile(widget.expenseModel.image!),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: Icon(CupertinoIcons.share),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else if (isMusic) {
+                    return InkWell(
+                      onTap: () => OpenFile.open(file.path),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                          color: AppColors.lgrey,
+                          child: ListTile(
+                            trailing: IconButton(
+                              onPressed: () async {
+                                SharePlus.instance.share(
+                                  ShareParams(
+                                    files: [
+                                      XFile(widget.expenseModel.image!),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: Icon(CupertinoIcons.share),
+                            ),
+                            leading: IconButton(
+                              onPressed: () async {
+                                if (_audioPlayer.state ==
+                                    PlayerState.playing) {
+                                  _animationController.reverse();
+                                  await _audioPlayer.pause();
+                                } else {
+                                  _animationController.forward();
+        
+                                  if (_audioPlayer.state ==
+                                      PlayerState.paused) {
+                                    await _audioPlayer.resume();
+                                  } else {
+                                    await _audioPlayer.play(
+                                      DeviceFileSource(
+                                        widget.expenseModel.image!,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: AnimatedIcon(
+                                icon: AnimatedIcons.play_pause,
+                                progress: _animationController,
                               ),
                             ),
+                            title: Text(path.basename(file.path)),
+                            subtitle: Slider(
+                              value: hozirgivaqt,
+                              onChanged: (v) {
+                                hozirgivaqt = v;
+                                _audioPlayer.seek(
+                                  Duration(seconds: hozirgivaqt.toInt()),
+                                );
+                              },
+                              max: umumiyvaqt,
+                            ),
                           ),
-                        );
-                      }
-                    },
-                  ),
-                ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return InkWell(
+                      onTap: () => OpenFile.open(file.path),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.insert_drive_file),
+                            title: Text(path.basename(file.path)),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
-            ),
+            ],
           ),
         ),
       ],

@@ -16,6 +16,11 @@ class NewEntry extends ChangeNotifier {
     '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.heic'
   ];
 
+    static final List<String> musicExtensions = [
+    '.mp3', '.wav', '.aac', '.m4a', '.ogg', '.flac', '.wma'
+  ];
+
+
   List category = [
     Assets.icons.home,
     Assets.icons.food,
@@ -133,6 +138,12 @@ class NewEntry extends ChangeNotifier {
     if (photo == null) return false;
     final ext = path.extension(photo!.path).toLowerCase();
     return imageExtensions.contains(ext);
+  }
+
+ bool get isPhotoMusic {
+    if (photo == null) return false;
+    final ext = path.extension(photo!.path).toLowerCase();
+    return musicExtensions.contains(ext);
   }
 
 }

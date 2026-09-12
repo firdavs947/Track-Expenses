@@ -9,7 +9,6 @@ import 'package:track_expenses/screens/check_screen.dart';
 import 'package:track_expenses/screens/home_screen.dart';
 import 'package:track_expenses/screens/settings_screen.dart';
 import 'package:track_expenses/screens/wallet_screen.dart';
-import 'package:track_expenses/service/permission_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
