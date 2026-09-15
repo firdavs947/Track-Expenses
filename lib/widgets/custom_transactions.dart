@@ -1,15 +1,17 @@
 import 'dart:io';
-
 import 'package:animate_do/animate_do.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
+
 import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/models/expense_model.dart';
+
+import 'package:track_expenses/main.dart';
 import 'package:track_expenses/screens/full_sccreen_image.dart';
 import 'package:track_expenses/utils/type_extension.dart';
 
@@ -23,62 +25,28 @@ class CustomTransactions extends StatefulWidget {
 
 class _CustomTransactionsState extends State<CustomTransactions>
     with TickerProviderStateMixin {
-  double hozirgivaqt = 0;
-  double umumiyvaqt = 0;
   late final AnimationController _animationController;
-  late final AudioPlayer _audioPlayer;
-  Future<void> initAudio() async {
-    _audioPlayer = AudioPlayer();
-    _audioPlayer.setReleaseMode(ReleaseMode.stop);
-
-    _audioPlayer.onDurationChanged.listen((value) {
-      if (mounted) {
-        setState(() {
-          umumiyvaqt = value.inSeconds.toDouble();
-        });
-      }
-    });
-
-    _audioPlayer.onPositionChanged.listen((value) {
-      if (mounted) {
-        setState(() {
-          if (_audioPlayer.state == PlayerState.completed) {
-            _animationController.reverse();
-          }
-          hozirgivaqt = value.inSeconds.toDouble();
-        });
-      }
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _audioPlayer.setSource(
-        DeviceFileSource(widget.expenseModel.image!),
-      );
-    });
-  }
 
   @override
   void initState() {
+    super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
-    if (widget.expenseModel.image != null &&
-        path.basename(widget.expenseModel.image!).endsWith('mp3')) {
-      initAudio();
-    }
-    super.initState();
   }
 
   @override
-  
   void dispose() {
     _animationController.dispose();
-    if (widget.expenseModel.image != null &&
-        path.basename(widget.expenseModel.image!).endsWith('mp3')) {
-      _audioPlayer.dispose();
-    }
     super.dispose();
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$minutes:$seconds';
   }
 
   @override
@@ -89,87 +57,77 @@ class _CustomTransactionsState extends State<CustomTransactions>
     return Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-          ),
-          // height: 297,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
           width: double.infinity,
           child: Column(
             children: [
-              Column(
+              Row(
                 children: [
-                  Row(
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundColor: AppColors.white,
+                    child: SvgPicture.asset(
+                      widget.expenseModel.type.name.checkType,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.black,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundColor: AppColors.white,
-                        child: SvgPicture.asset(
-                          widget.expenseModel.type.name.checkType,
-                          colorFilter: ColorFilter.mode(
-                            AppColors.black,
-                            BlendMode.srcIn,
-                          ),
+                      Text(
+                        widget.expenseModel.note ?? '',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.expenseModel.note ?? '',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            ' ${widget.expenseModel.type.name}',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Spacer(),
-                      TweenAnimationBuilder(
-                        tween: Tween<double>(begin: 0.0, end: absValue),
-                        duration: const Duration(milliseconds: 4000),
-                        curve: Curves.easeOutQuint,
-                        builder: (context, double value, Widget? child) =>
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Text(
-                                '${isIncome ? '+' : '-'}\$${value.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Jet',
-                                  color: isIncome
-                                      ? AppColors.green
-                                      : AppColors.black,
-                                ),
-                              ),
-                            ),
+                      Text(
+                        ' ${widget.expenseModel.type.name}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.grey,
+                        ),
                       ),
                     ],
                   ),
+                   Spacer(),
+                  TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0.0, end: absValue),
+                    duration:  Duration(milliseconds: 4000),
+                    curve: Curves.easeOutQuint,
+                    builder: (context, double value, Widget? child) => Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Text(
+                        '${isIncome ? '+' : '-'}\$${value.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Jet',
+                          color: isIncome ? AppColors.green : AppColors.black,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(height: 20),
-              // SizedBox(height: 20),
+               SizedBox(height: 20),
               Builder(
                 builder: (context) {
                   final imagePath = widget.expenseModel.image;
-        
+
                   if (imagePath == null || imagePath.isEmpty) {
-                    return const SizedBox();
+                    return SizedBox();
                   }
-        
+
                   final file = File(imagePath);
                   final ext = path.extension(imagePath).toLowerCase();
+
                   final isImage = [
                     '.png',
                     '.jpg',
@@ -179,7 +137,7 @@ class _CustomTransactionsState extends State<CustomTransactions>
                     '.webp',
                     '.heic',
                   ].contains(ext);
-        
+
                   final isMusic = [
                     '.mp3',
                     '.wav',
@@ -189,10 +147,9 @@ class _CustomTransactionsState extends State<CustomTransactions>
                     '.flac',
                     '.wma',
                   ].contains(ext);
-        
+
                   if (isImage) {
                     return SizedBox(
-                      // height: 200,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Column(
@@ -210,23 +167,20 @@ class _CustomTransactionsState extends State<CustomTransactions>
                               child: Hero(
                                 tag: 'rasm1',
                                 child: ClipRRect(
-                                  borderRadius: BorderRadiusGeometry.circular(20),
+                                  borderRadius: BorderRadius.circular(20),
                                   child: Image.file(
                                     file,
-                                    // height: 200,
                                     width: double.infinity,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
                             ),
-                              IconButton(
+                            IconButton(
                               onPressed: () async {
                                 SharePlus.instance.share(
                                   ShareParams(
-                                    files: [
-                                      XFile(widget.expenseModel.image!),
-                                    ],
+                                    files: [XFile(widget.expenseModel.image!)],
                                   ),
                                 );
                               },
@@ -238,64 +192,259 @@ class _CustomTransactionsState extends State<CustomTransactions>
                     );
                   } else if (isMusic) {
                     return InkWell(
-                      onTap: () => OpenFile.open(file.path),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          color: AppColors.lgrey,
-                          child: ListTile(
-                            trailing: IconButton(
-                              onPressed: () async {
-                                SharePlus.instance.share(
-                                  ShareParams(
-                                    files: [
-                                      XFile(widget.expenseModel.image!),
-                                    ],
-                                  ),
-                                );
-                              },
-                              icon: Icon(CupertinoIcons.share),
-                            ),
-                            leading: IconButton(
-                              onPressed: () async {
-                                if (_audioPlayer.state ==
-                                    PlayerState.playing) {
-                                  _animationController.reverse();
-                                  await _audioPlayer.pause();
-                                } else {
-                                  _animationController.forward();
-        
-                                  if (_audioPlayer.state ==
-                                      PlayerState.paused) {
-                                    await _audioPlayer.resume();
-                                  } else {
-                                    await _audioPlayer.play(
-                                      DeviceFileSource(
-                                        widget.expenseModel.image!,
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              icon: AnimatedIcon(
-                                icon: AnimatedIcons.play_pause,
-                                progress: _animationController,
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (modalContext) {
+                            final trackTitle =
+                                widget.expenseModel.note?.isNotEmpty == true
+                                ? widget.expenseModel.note!
+                                : path.basename(file.path);
+
+                            return Container(
+                              height:
+                                  MediaQuery.of(modalContext).size.height *
+                                  0.75,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(30),
+                                ),
                               ),
-                            ),
-                            title: Text(path.basename(file.path)),
-                            subtitle: Slider(
-                              value: hozirgivaqt,
-                              onChanged: (v) {
-                                hozirgivaqt = v;
-                                _audioPlayer.seek(
-                                  Duration(seconds: hozirgivaqt.toInt()),
-                                );
-                              },
-                              max: umumiyvaqt,
-                            ),
-                          ),
-                        ),
-                      ),
+                              child: StreamBuilder<PlaybackState>(
+                                stream: audioHandler.playbackState,
+                                builder: (context, snapshot) {
+                                  final playbackState = snapshot.data;
+                                  final playing =
+                                      playbackState?.playing ?? false;
+                                  final processingState =
+                                      playbackState?.processingState;
+                                  final isCurrentItem =
+                                      audioHandler.mediaItem.value?.id ==
+                                      file.path;
+                                  final isCompleted =
+                                      processingState ==
+                                      AudioProcessingState.completed;
+
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          width: 400,
+                                          height: 400,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.lgrey,
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            CupertinoIcons.music_note_2,
+                                            size: 175,
+                                            color: AppColors.black,
+                                          ),
+                                        ),
+                                      ),
+                                       SizedBox(height: 16),
+
+                                      Text(
+                                        trackTitle,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 6),
+
+                                      Padding(
+                                        padding:  EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                        child: IconButton(
+                                          iconSize: 32,
+                                          icon:  Icon(
+                                            CupertinoIcons.share,
+                                          ),
+                                          onPressed: () {
+                                            SharePlus.instance.share(
+                                              ShareParams(
+                                                files: [XFile(file.path)],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      Spacer(),
+
+                                      StreamBuilder<MediaItem?>(
+                                        stream: audioHandler.mediaItem,
+                                        builder: (context, mediaSnapshot) {
+                                          final duration =
+                                              mediaSnapshot.data?.duration ??
+                                              Duration.zero;
+                                          final position = isCompleted
+                                              ? Duration.zero
+                                              : (playbackState?.position ??
+                                                    Duration.zero);
+
+                                          double maxSeconds = duration.inSeconds
+                                              .toDouble();
+                                          double currentSeconds = position
+                                              .inSeconds
+                                              .toDouble();
+
+                                          if (currentSeconds > maxSeconds)
+                                            // ignore: curly_braces_in_flow_control_structures
+                                            currentSeconds = maxSeconds;
+                                          if (maxSeconds <= 0) maxSeconds = 1.0;
+
+                                          return Column(
+                                            children: [
+                                              Slider(
+                                                value: currentSeconds.clamp(
+                                                  0.0,
+                                                  maxSeconds,
+                                                ),
+                                                max: maxSeconds,
+                                                onChanged: (value) {
+                                                  audioHandler.seek(
+                                                    Duration(
+                                                      seconds: value.toInt(),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                    ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      _formatDuration(position),
+                                                    ),
+                                                    Text(
+                                                      _formatDuration(duration),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+
+                                       SizedBox(height: 10),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            IconButton(
+                                              iconSize: 32,
+                                              icon:  Icon(Icons.replay_10),
+                                              onPressed: () async {
+                                                final currentPosition =
+                                                    audioHandler
+                                                        .playbackState
+                                                        .value
+                                                        .position;
+                                                final newPosition =
+                                                    currentPosition -
+                                                     Duration(seconds: 10);
+                                        
+                                                await audioHandler.seek(
+                                                  newPosition < Duration.zero
+                                                      ? Duration.zero
+                                                      : newPosition,
+                                                );
+                                              },
+                                            ),
+                                            IconButton(
+                                              iconSize: 64,
+                                              icon: Icon(
+                                                playing &&
+                                                        isCurrentItem &&
+                                                        !isCompleted
+                                                    ? CupertinoIcons
+                                                          .pause_circle_fill
+                                                    : CupertinoIcons
+                                                          .play_circle_fill,
+                                              ),
+                                              onPressed: () async {
+                                                if (isCurrentItem) {
+                                                  if (isCompleted) {
+                                                    await audioHandler.seek(
+                                                      Duration.zero,
+                                                    );
+                                                    await audioHandler.play();
+                                                  } else if (playing) {
+                                                    await audioHandler.pause();
+                                                  } else {
+                                                    await audioHandler.play();
+                                                  }
+                                                } else {
+                                                  audioHandler.playFromFile(
+                                                    filePath: file.path,
+                                                    title: trackTitle,
+                                                    album: widget
+                                                        .expenseModel
+                                                        .type
+                                                        .name,
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              iconSize: 32,
+                                              icon: const Icon(Icons.forward_10),
+                                              onPressed: () async {
+                                                final currentPosition =
+                                                    audioHandler
+                                                        .playbackState
+                                                        .value
+                                                        .position;
+                                                final maxDuration =
+                                                    audioHandler
+                                                        .mediaItem
+                                                        .value
+                                                        ?.duration ??
+                                                    Duration.zero;
+                                                final newPosition =
+                                                    currentPosition +
+                                                    const Duration(seconds: 10);
+                                        
+                                                await audioHandler.seek(
+                                                  newPosition > maxDuration
+                                                      ? maxDuration
+                                                      : newPosition,
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 20),
+                                    ],
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: _buildAudioPlayerWidget(file),
                     );
                   } else {
                     return InkWell(
@@ -317,6 +466,107 @@ class _CustomTransactionsState extends State<CustomTransactions>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAudioPlayerWidget(File file) {
+    final trackTitle = widget.expenseModel.note?.isNotEmpty == true
+        ? widget.expenseModel.note!
+        : path.basename(file.path);
+
+    return StreamBuilder<PlaybackState>(
+      stream: audioHandler.playbackState,
+      builder: (context, snapshot) {
+        final playbackState = snapshot.data;
+        final playing = playbackState?.playing ?? false;
+        final processingState = playbackState?.processingState;
+        final isCurrentItem = audioHandler.mediaItem.value?.id == file.path;
+
+        final isCompleted = processingState == AudioProcessingState.completed;
+
+        if (playing && isCurrentItem && !isCompleted) {
+          _animationController.forward();
+        } else {
+          _animationController.reverse();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: AppColors.lgrey,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: IconButton(
+                    onPressed: () async {
+                      if (isCurrentItem) {
+                        if (isCompleted) {
+                          await audioHandler.seek(Duration.zero);
+                          await audioHandler.play();
+                        } else if (playing) {
+                          await audioHandler.pause();
+                        } else {
+                          await audioHandler.play();
+                        }
+                      } else {
+                        audioHandler.playFromFile(
+                          filePath: file.path,
+                          title: trackTitle,
+                          album: widget.expenseModel.type.name,
+                        );
+                      }
+                    },
+                    icon: AnimatedIcon(
+                      icon: AnimatedIcons.play_pause,
+                      progress: _animationController,
+                    ),
+                  ),
+                  title: Text(
+                    trackTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: IconButton(
+                    onPressed: () async {
+                      SharePlus.instance.share(
+                        ShareParams(files: [XFile(file.path)]),
+                      );
+                    },
+                    icon: const Icon(CupertinoIcons.share),
+                  ),
+                ),
+                if (isCurrentItem)
+                  StreamBuilder<MediaItem?>(
+                    stream: audioHandler.mediaItem,
+                    builder: (context, mediaSnapshot) {
+                      final duration =
+                          mediaSnapshot.data?.duration ?? Duration.zero;
+
+                      final position = isCompleted
+                          ? Duration.zero
+                          : (playbackState?.position ?? Duration.zero);
+
+                      double maxSeconds = duration.inSeconds.toDouble();
+                      double currentSeconds = position.inSeconds.toDouble();
+
+                      if (currentSeconds > maxSeconds)
+                        currentSeconds = maxSeconds;
+                      if (maxSeconds <= 0) maxSeconds = 1.0;
+
+                      return Slider(
+                        value: currentSeconds.clamp(0.0, maxSeconds),
+                        max: maxSeconds,
+                        onChanged: (value) {
+                          audioHandler.seek(Duration(seconds: value.toInt()));
+                        },
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

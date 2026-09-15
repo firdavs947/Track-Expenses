@@ -11,15 +11,25 @@ import 'package:track_expenses/service/database_service.dart';
 class NewEntry extends ChangeNotifier {
   File? photo;
 
-
   static final List<String> imageExtensions = [
-    '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.heic'
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.bmp',
+    '.webp',
+    '.heic',
   ];
 
-    static final List<String> musicExtensions = [
-    '.mp3', '.wav', '.aac', '.m4a', '.ogg', '.flac', '.wma'
+  static final List<String> musicExtensions = [
+    '.mp3',
+    '.wav',
+    '.aac',
+    '.m4a',
+    '.ogg',
+    '.flac',
+    '.wma',
   ];
-
 
   List category = [
     Assets.icons.home,
@@ -74,6 +84,7 @@ class NewEntry extends ChangeNotifier {
       );
       onSuccess();
     } catch (e) {
+      print('Error on save $e');
       onError();
     } finally {
       isLoading = false;
@@ -130,7 +141,6 @@ class NewEntry extends ChangeNotifier {
       photo = File(result!.xFile.path);
       notifyListeners();
       onSuccess();
-
     }
   }
 
@@ -140,10 +150,9 @@ class NewEntry extends ChangeNotifier {
     return imageExtensions.contains(ext);
   }
 
- bool get isPhotoMusic {
+  bool get isPhotoMusic {
     if (photo == null) return false;
     final ext = path.extension(photo!.path).toLowerCase();
     return musicExtensions.contains(ext);
   }
-
 }
