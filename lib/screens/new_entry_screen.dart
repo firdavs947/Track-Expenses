@@ -1,4 +1,3 @@
-
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
@@ -24,6 +23,7 @@ class NewEntryScreen extends StatefulWidget {
 class _NewEntryScreenState extends State<NewEntryScreen> {
   final TextEditingController _notecontroller = TextEditingController();
   final TextEditingController _valuecontroller = TextEditingController();
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -283,7 +283,8 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                                   ),
                                 ),
                               );
-                            } else {
+                            } 
+                            else {
                               return InkWell(
                                 onTap: () {
                                   OpenFile.open(photo.path);

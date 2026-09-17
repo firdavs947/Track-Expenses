@@ -1,4 +1,3 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
@@ -13,6 +12,10 @@ class ListViewBuilder extends StatefulWidget {
 }
 
 class _ListViewBuilderState extends State<ListViewBuilder> {
+ 
+ 
+ 
+ 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(

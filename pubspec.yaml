@@ -11,6 +11,7 @@ dependencies:
   animate_do: ^5.1.0
   audio_service: ^0.18.19
   audioplayers: ^6.7.1
+  connectivity_plus: ^7.3.1
   cupertino_icons: ^1.0.9
   file_picker: ^12.2.0
   flutter:
@@ -19,12 +20,15 @@ dependencies:
   flutter_svg: ^2.3.0
   image_picker: ^1.2.3
   lottie: ^3.3.3
+  liquid_glass_easy: ^4.3.1
   open_file: ^4.0.0
   path: ^1.9.1
   permission_handler: ^12.0.3
   provider: ^6.1.5+1
   share_plus: ^13.3.0
   sqflite: ^2.4.2+1
+  video_player: ^2.11.1
+  chewie: ^1.15.0
 
 
 dev_dependencies:
@@ -34,6 +38,7 @@ dev_dependencies:
   flutter_gen_runner: ^5.15.0
   build_runner: ^2.15.1
   flutter_launcher_icons: ^0.14.4
+  
 
 flutter_launcher_icons:
   android: "launcher_icon"

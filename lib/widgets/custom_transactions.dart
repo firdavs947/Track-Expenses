@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:animate_do/animate_do.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,9 @@ import 'package:track_expenses/models/expense_model.dart';
 
 import 'package:track_expenses/main.dart';
 import 'package:track_expenses/screens/full_sccreen_image.dart';
+import 'package:track_expenses/screens/video_fuiul_screen.dart';
 import 'package:track_expenses/utils/type_extension.dart';
+import 'package:track_expenses/widgets/video_priview_card.dart';
 
 class CustomTransactions extends StatefulWidget {
   const CustomTransactions({super.key, required this.expenseModel});
@@ -29,11 +30,12 @@ class _CustomTransactionsState extends State<CustomTransactions>
 
   @override
   void initState() {
-    super.initState();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
+
+    super.initState();
   }
 
   @override
@@ -96,10 +98,10 @@ class _CustomTransactionsState extends State<CustomTransactions>
                       ),
                     ],
                   ),
-                   Spacer(),
+                  Spacer(),
                   TweenAnimationBuilder(
                     tween: Tween<double>(begin: 0.0, end: absValue),
-                    duration:  Duration(milliseconds: 4000),
+                    duration: Duration(milliseconds: 4000),
                     curve: Curves.easeOutQuint,
                     builder: (context, double value, Widget? child) => Padding(
                       padding: const EdgeInsets.only(right: 10),
@@ -116,7 +118,7 @@ class _CustomTransactionsState extends State<CustomTransactions>
                   ),
                 ],
               ),
-               SizedBox(height: 20),
+              SizedBox(height: 20),
               Builder(
                 builder: (context) {
                   final imagePath = widget.expenseModel.image;
@@ -147,6 +149,18 @@ class _CustomTransactionsState extends State<CustomTransactions>
                     '.flac',
                     '.wma',
                   ].contains(ext);
+
+                  final isVideo = [
+                    '.mp4',
+                    '.mov',
+                    '.avi',
+                    '.mkv',
+                    '.webm',
+                    '.flv',
+                    '.wmv',
+                    '.m4v',
+                    '.3gp',
+                  ].contains(ext.toLowerCase());
 
                   if (isImage) {
                     return SizedBox(
@@ -250,7 +264,7 @@ class _CustomTransactionsState extends State<CustomTransactions>
                                           ),
                                         ),
                                       ),
-                                       SizedBox(height: 16),
+                                      SizedBox(height: 16),
 
                                       Text(
                                         trackTitle,
@@ -262,14 +276,12 @@ class _CustomTransactionsState extends State<CustomTransactions>
                                       SizedBox(height: 6),
 
                                       Padding(
-                                        padding:  EdgeInsets.symmetric(
+                                        padding: EdgeInsets.symmetric(
                                           horizontal: 10,
                                         ),
                                         child: IconButton(
                                           iconSize: 32,
-                                          icon:  Icon(
-                                            CupertinoIcons.share,
-                                          ),
+                                          icon: Icon(CupertinoIcons.share),
                                           onPressed: () {
                                             SharePlus.instance.share(
                                               ShareParams(
@@ -343,17 +355,19 @@ class _CustomTransactionsState extends State<CustomTransactions>
                                         },
                                       ),
 
-                                       SizedBox(height: 10),
+                                      SizedBox(height: 10),
 
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                        ),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             IconButton(
                                               iconSize: 32,
-                                              icon:  Icon(Icons.replay_10),
+                                              icon: Icon(Icons.replay_10),
                                               onPressed: () async {
                                                 final currentPosition =
                                                     audioHandler
@@ -362,8 +376,8 @@ class _CustomTransactionsState extends State<CustomTransactions>
                                                         .position;
                                                 final newPosition =
                                                     currentPosition -
-                                                     Duration(seconds: 10);
-                                        
+                                                    Duration(seconds: 10);
+
                                                 await audioHandler.seek(
                                                   newPosition < Duration.zero
                                                       ? Duration.zero
@@ -408,7 +422,9 @@ class _CustomTransactionsState extends State<CustomTransactions>
                                             ),
                                             IconButton(
                                               iconSize: 32,
-                                              icon: const Icon(Icons.forward_10),
+                                              icon: const Icon(
+                                                Icons.forward_10,
+                                              ),
                                               onPressed: () async {
                                                 final currentPosition =
                                                     audioHandler
@@ -424,7 +440,7 @@ class _CustomTransactionsState extends State<CustomTransactions>
                                                 final newPosition =
                                                     currentPosition +
                                                     const Duration(seconds: 10);
-                                        
+
                                                 await audioHandler.seek(
                                                   newPosition > maxDuration
                                                       ? maxDuration
@@ -445,6 +461,30 @@ class _CustomTransactionsState extends State<CustomTransactions>
                         );
                       },
                       child: _buildAudioPlayerWidget(file),
+                    );
+                  } else if (isVideo) {
+                    final heroTag =
+                        'video_${file.path}'; 
+
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Hero(
+                        tag: heroTag,
+                        child: VideoPreviewCard(
+                          videoFile: file,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VideoFuiulScreen(
+                                  videoFile: file,
+                                  heroTag: heroTag,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     );
                   } else {
                     return InkWell(
