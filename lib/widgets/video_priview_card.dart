@@ -59,10 +59,9 @@ class _VideoPreviewCardState extends State<VideoPreviewCard> {
                 else
                   const Center(child: CircularProgressIndicator()),
                 
-                // Иконка Play поверх видео
                 Container(
                   color: Colors.black26,
-                  child: const Center(
+                  child: Center(
                     child: Icon(
                       CupertinoIcons.play_circle_fill,
                       size: 50,
