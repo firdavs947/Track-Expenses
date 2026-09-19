@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/providers/onboarding_provider.dart';
@@ -16,6 +17,12 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    GetStorage().write('opened', true);
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -153,13 +160,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         SizedBox(height: 24),
                         FadeIn(
-                           delay: Duration(milliseconds: 1100),
-                            duration: Duration(milliseconds: 500),
-                           
+                          delay: Duration(milliseconds: 1100),
+                          duration: Duration(milliseconds: 500),
+
                           child: ZoomInDown(
-                               delay: Duration(milliseconds: 1100),
+                            delay: Duration(milliseconds: 1100),
                             duration: Duration(milliseconds: 500),
-                           
+
                             child: ElevatedButton(
                               onPressed: () {
                                 context.read<OnboardingProvider>().info.length -
@@ -179,7 +186,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                       );
                               },
                               child: Text(
-                                context.watch<OnboardingProvider>().currentPage ==
+                                context
+                                            .watch<OnboardingProvider>()
+                                            .currentPage ==
                                         context
                                                 .watch<OnboardingProvider>()
                                                 .info
@@ -187,7 +196,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                             1
                                     ? 'GET STARTED'
                                     : 'NEXT',
-                            
+
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,

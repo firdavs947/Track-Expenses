@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: FadeInDown(
             duration: Duration(milliseconds: 500),
-
+    
             child: Text(
               'Overview',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     FadeIn(
                       delay: Duration(milliseconds: 200),
                       duration: Duration(milliseconds: 800),
-
+    
                       child: Text(
                         'TOTAL BALANCE',
                         style: TextStyle(
@@ -104,14 +104,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 24),
-
+    
                     Addfunds(),
-
+    
                     SizedBox(height: 20),
                     FadeIn(
                       delay: Duration(milliseconds: 800),
                       duration: Duration(milliseconds: 800),
-
+    
                       child: IconButton(
                         onPressed: () async {
                           await Navigator.push(
@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 20),
-
+    
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25),
                       child: IncomeOutcome(),
@@ -141,21 +141,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     FadeIn(
                       delay: Duration(milliseconds: 1100),
                       duration: Duration(milliseconds: 800),
-
+    
                       child: ZoomInDown(
                         delay: Duration(milliseconds: 1100),
                         duration: Duration(milliseconds: 800),
-
+    
                         child: RecentTransactions(),
                       ),
                     ),
                     SizedBox(height: 24),
-
+    
                     context.watch<HomeProvider>().expenses.isEmpty
                         ? FadeIn(
                             delay: Duration(milliseconds: 1200),
                             duration: Duration(milliseconds: 800),
-
+    
                             child: ZoomIn(
                               delay: Duration(milliseconds: 1200),
                               duration: Duration(milliseconds: 800),

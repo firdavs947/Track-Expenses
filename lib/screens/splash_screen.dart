@@ -1,7 +1,9 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:track_expenses/gen/assets.gen.dart';
+import 'package:track_expenses/screens/home_screen.dart';
 import 'package:track_expenses/screens/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Navigator.pushReplacement(
       context,
-      CupertinoPageRoute(builder: (context) => const OnboardingScreen()),
+      MaterialPageRoute(builder: (context) =>GetStorage().read('opened') == null || GetStorage().read('opened') == false ? OnboardingScreen():HomeScreen()),
     );
   }
 

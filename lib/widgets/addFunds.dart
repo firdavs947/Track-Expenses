@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:track_expenses/consts/colors/app_colors.dart';
 import 'package:track_expenses/screens/full_video_screen.dart';
+import 'package:track_expenses/widgets/no_interner.dart';
 
 class Addfunds extends StatelessWidget {
   const Addfunds({super.key});
@@ -55,22 +56,25 @@ class Addfunds extends StatelessWidget {
             delay: Duration(milliseconds: 600),
             duration: Duration(milliseconds: 800),
 
-            child: Container(
-              // height: 35,
-              // width: 123,
-              decoration: BoxDecoration(
-                color: AppColors.lgrey,
-                border: Border.all(color: AppColors.grey),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 9,
-                  horizontal: 24,
+            child: GestureDetector(
+              onTap: () => NoInterner.widgetnikorsatish(),
+              child: Container(
+                // height: 35,
+                // width: 123,
+                decoration: BoxDecoration(
+                  color: AppColors.lgrey,
+                  border: Border.all(color: AppColors.grey),
+                  borderRadius: BorderRadius.circular(100),
                 ),
-                child: Text(
-                  'SEND',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 9,
+                    horizontal: 24,
+                  ),
+                  child: Text(
+                    'SEND',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
             ),
